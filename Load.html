@@ -26,7 +26,11 @@
     .shape{position:absolute; width:220px; height:220px; border-radius:20px; background:linear-gradient(135deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); box-shadow: 0 0 60px rgba(201,127,176,0.06);}
     .shape.s1{left:-120px; top:8%; transform:rotate(18deg); animation:float1 10s ease-in-out infinite}
     .shape.s2{right:-140px; bottom:6%; width:320px; height:320px; border-radius:40px; animation:float2 13s ease-in-out infinite}
-    @keyframes float1{0%{transform:translateY(0) rotate(18deg)}50%{transform:translateY(-30px) rotate(18deg)}100%{transform:translateY(0) rotate(18deg)}}
+    @keyframes float1 {
+      0% { transform:translateY(0) rotate(18deg); }
+      50% { transform:translateY(-30px) rotate(18deg); }
+      100% { transform:translateY(0) rotate(18deg); }
+    }
     @keyframes float2{0%{transform:translateY(0) rotate(0)}50%{transform:translateY(45px) rotate(36deg)}100%{transform:translateY(0) rotate(0)}}
 
     /* main card */
@@ -243,19 +247,59 @@ print('שלום Roblox Dev!')
 <script>
 window.addEventListener('DOMContentLoaded', ()=>{
   const loaderWrap = document.getElementById('loaderWrap');
+  const loaderBar = document.getElementById('loaderBar');
+  const loaderPercent = document.getElementById('loaderPercent');
+  const loaderStatus = document.getElementById('loaderStatus');
   const appArea = document.getElementById('appArea');
   const skipBtn = document.getElementById('skipBtn');
+  let interrupted = false, idx = 0, elapsed = 0;
 
-  let interrupted = false;
+  // שלבי טעינה מדורגת
+  const steps = [
+    { text: 'בודק חיבור...', t: 400 },
+    { text: 'טוען נתונים...', t: 700 },
+    { text: 'מכין סביבת עבודה...', t: 600 },
+    { text: 'סיום!', t: 400 }
+  ];
+  const total = steps.reduce((a,s)=>a+s.t,0);
 
-  function finishLoading() {
-    // Simulate loading process
-    setTimeout(() => {
-      if (interrupted) return;
+  function advancedStep(){
+    if(idx >= steps.length) return finishLoading();
+    const s = steps[idx];
+    loaderStatus.innerText = s.text;
+    const start = performance.now();
+    function stepAnim(now){
+      const dt = now - start;
+      const frac = Math.min(1, dt/s.t);
+      const percent = Math.round(((elapsed + frac*s.t)/total)*100);
+      loaderBar.style.width = percent + '%';
+      loaderPercent.innerText = percent + '%';
+      if(frac < 1 && !interrupted) requestAnimationFrame(stepAnim);
+      else {
+        elapsed += s.t;
+        idx++;
+        if(interrupted){ finishLoading(); return; }
+        setTimeout(advancedStep, 140);
+      }
+    }
+    requestAnimationFrame(stepAnim);
+  }
+
+  function finishLoading(){
+    try {
+      loaderBar.style.width = '100%';
+      loaderPercent.innerText = '100%';
+      loaderStatus.innerText = 'סיום טעינה';
+      setTimeout(()=>{
+        loaderWrap.style.display = 'none';
+        appArea.style.display = 'block';
+        appArea.removeAttribute('aria-hidden');
+      }, 450);
+    } catch (e) {
       loaderWrap.style.display = 'none';
       appArea.style.display = 'block';
       appArea.removeAttribute('aria-hidden');
-    }, 2000);
+    }
   }
 
   skipBtn.addEventListener('click', ()=>{
@@ -263,29 +307,14 @@ window.addEventListener('DOMContentLoaded', ()=>{
       interrupted = true;
       finishLoading();
     } catch (e) {
-      // Fallback: force show app if JS/localStorage fails
       loaderWrap.style.display = 'none';
       appArea.style.display = 'block';
       appArea.removeAttribute('aria-hidden');
     }
   });
 
-  function finishLoading(){
-    try {
-      loaderBar.style.width = '100%';
-      loaderPercent.innerText = '100%';
-      loaderStatus.innerText = 'סיום טעינה';
-      setTimeout(()=>decideAfterLoad(),450);
-    } catch (e) {
-      // Fallback: force show app if JS/localStorage fails
-      loaderWrap.style.display = 'none';
-      appArea.style.display = 'block';
-      appArea.removeAttribute('aria-hidden');
-    }
-  }
-
-  // Start the loading process
-  finishLoading();
+  // התחל טעינה מדורגת
+  advancedStep();
 });
 </script>
 </body>
