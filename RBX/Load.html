@@ -311,7 +311,16 @@ print('שלום Roblox Dev!')
   // start after DOM loaded
   window.addEventListener('DOMContentLoaded', ()=>{
     console.log('DOM ready — starting loader');
-    skipBtn.addEventListener('click', ()=>{ interrupted = true; finishLoading(); });
+    skipBtn.addEventListener('click', ()=>{
+      try {
+        interrupted = true;
+        finishLoading();
+      } catch (e) {
+        loaderWrap.style.display = 'none';
+        appArea.style.display = 'block';
+        appArea.removeAttribute('aria-hidden');
+      }
+    });
     loaderInfo.addEventListener('click', ()=>{ showModal('מידע טכני', `<div style="color:var(--muted)">פינג: ~42ms<br>גרסה: Dev-Build 1.1 (דמו)<br>הכל רץ מקומית בדפדפן</div>`); });
     interrupted = false; idx = 0; elapsed = 0; startLoading();
     logoutBtn.addEventListener('click', ()=>{ localStorage.removeItem(CUR_USER_KEY); location.reload(); });
@@ -321,7 +330,18 @@ print('שלום Roblox Dev!')
 
   function advancedStep(){ if(idx>=steps.length) return finishLoading(); const s=steps[idx]; loaderStatus.innerText=s.text; const start=performance.now(); function stepAnim(now){ const dt=now-start; const frac=Math.min(1, dt/s.t); const percent=Math.round(((elapsed + frac*s.t)/total)*100); loaderBar.style.width = percent + '%'; loaderPercent.innerText = percent + '%'; if(frac<1 && !interrupted) requestAnimationFrame(stepAnim); else { elapsed += s.t; idx++; if(interrupted){ finishLoading(); return } setTimeout(advancedStep,140); } } requestAnimationFrame(stepAnim); }
 
-  function finishLoading(){ loaderBar.style.width = '100%'; loaderPercent.innerText = '100%'; loaderStatus.innerText = 'סיום טעינה'; setTimeout(()=>decideAfterLoad(),450); }
+  function finishLoading(){
+    try {
+      loaderBar.style.width = '100%';
+      loaderPercent.innerText = '100%';
+      loaderStatus.innerText = 'סיום טעינה';
+      setTimeout(()=>decideAfterLoad(),450);
+    } catch (e) {
+      loaderWrap.style.display = 'none';
+      appArea.style.display = 'block';
+      appArea.removeAttribute('aria-hidden');
+    }
+  }
 
   function decideAfterLoad(){ const cur = localStorage.getItem(CUR_USER_KEY); loaderWrap.style.display='none'; if(cur){ openApp(cur); } else { showInitialAuth(); } }
 
