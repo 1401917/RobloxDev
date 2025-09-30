@@ -26,11 +26,7 @@
     .shape{position:absolute; width:220px; height:220px; border-radius:20px; background:linear-gradient(135deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); box-shadow: 0 0 60px rgba(201,127,176,0.06);}
     .shape.s1{left:-120px; top:8%; transform:rotate(18deg); animation:float1 10s ease-in-out infinite}
     .shape.s2{right:-140px; bottom:6%; width:320px; height:320px; border-radius:40px; animation:float2 13s ease-in-out infinite}
-    @keyframes float1 {
-      0% { transform:translateY(0) rotate(18deg); }
-      50% { transform:translateY(-30px) rotate(18deg); }
-      100% { transform:translateY(0) rotate(18deg); }
-    }
+    @keyframes float1{0%{transform:translateY(0) rotate(18deg)}50%{transform:translateY(-30px) rotate(18deg)}100%{transform:translateY(0) rotate(18deg)}}
     @keyframes float2{0%{transform:translateY(0) rotate(0)}50%{transform:translateY(45px) rotate(36deg)}100%{transform:translateY(0) rotate(0)}}
 
     /* main card */
@@ -49,8 +45,7 @@
     .loading-headline{display:flex; gap:12px; flex-wrap:wrap; justify-content:center}
     .loading-headline span{display:inline-block; padding:6px 12px; border-radius:10px; background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.02)); box-shadow:0 10px 26px rgba(0,0,0,0.6); transform-origin:center bottom; animation:jump 1.05s cubic-bezier(.2,.9,.2,1) infinite}
     .loading-headline span:nth-child(1){animation-delay:0s} .loading-headline span:nth-child(2){animation-delay:.10s} .loading-headline span:nth-child(3){animation-delay:.20s} .loading-headline span:nth-child(4){animation-delay:.30s} .loading-headline span:nth-child(5){animation-delay:.40s}
-    @keyframes jump{0%{transform:translateY(0) scale(1);}10%{transform:translateY(-16px) scale(1.02);}30%{transform:translateY(2px) scale(.99);}50%{transform:translateY(0) scale(1);}100%{transform:translateY(0) scale(1);}
-    }
+    @keyframes jump{0%{transform:translateY(0) scale(1);}10%{transform:translateY(-16px) scale(1.02);}30%{transform:translateY(2px) scale(.99);}50%{transform:translateY(0) scale(1);}100%{transform:translateY(0) scale(1);}}
 
     .loading-bar{width:420px; height:18px; background:#0e0e0e; border-radius:999px; overflow:hidden; box-shadow: inset 0 2px 8px rgba(0,0,0,0.6)}
     .loading-bar .bar{height:100%; width:0%; background: linear-gradient(90deg, rgba(201,127,176,0.98), rgba(130,90,140,0.9)); border-radius:999px; transition:width .14s linear}
@@ -245,77 +240,195 @@ print('שלום Roblox Dev!')
   </div>
 
 <script>
-window.addEventListener('DOMContentLoaded', ()=>{
+  // Elements
   const loaderWrap = document.getElementById('loaderWrap');
   const loaderBar = document.getElementById('loaderBar');
   const loaderPercent = document.getElementById('loaderPercent');
   const loaderStatus = document.getElementById('loaderStatus');
-  const appArea = document.getElementById('appArea');
   const skipBtn = document.getElementById('skipBtn');
-  let interrupted = false, idx = 0, elapsed = 0;
+  const loaderInfo = document.getElementById('loaderInfo');
 
-  // שלבי טעינה מדורגת
-  const steps = [
-    { text: 'בודק חיבור...', t: 400 },
-    { text: 'טוען נתונים...', t: 700 },
-    { text: 'מכין סביבת עבודה...', t: 600 },
-    { text: 'סיום!', t: 400 }
+  const appArea = document.getElementById('appArea');
+  const modal = document.getElementById('modal');
+  const modalBody = document.getElementById('modalBody');
+  const modalTitle = document.getElementById('modalTitle');
+  const closeModalBtn = document.getElementById('closeModal');
+  const userBadge = document.getElementById('userBadge');
+  const logoutBtn = document.getElementById('logoutBtn');
+  const lessonsList = document.getElementById('lessonsList');
+  const overallBar = document.getElementById('overallBar');
+  const lessonTitle = document.getElementById('lessonTitle');
+  const lessonDesc = document.getElementById('lessonDesc');
+  const lessonArea = document.getElementById('lessonArea');
+  const codeArea = document.getElementById('codeArea');
+  const consoleEl = document.getElementById('console');
+  const runBtn = document.getElementById('runBtn');
+  const resetBtn = document.getElementById('resetBtn');
+  const markDoneBtn = document.getElementById('markDone');
+  const lessonProgress = document.getElementById('lessonProgress');
+  const scrollFill = document.getElementById('scrollFill');
+  const brand = document.getElementById('brand');
+  const logoBox = document.getElementById('logoBox');
+  const gradientAnim = document.getElementById('gradientAnim');
+
+  // storage keys
+  const USERS_KEY = 'rd_users';
+  const CUR_USER_KEY = 'rd_current_user';
+  const PROG_KEY = 'rd_lessons_progress_v1';
+
+  // dataset
+  const LESSONS = [
+    {id:'l1', title:'מבוא ל-Lua ב-Roblox', desc:'הכרות עם התחביר, print, משתנים וסוגי נתונים.'},
+    {id:'l2', title:'יצירת Parts', desc:'יצירת Parts, שינוי מיקום וגודל.'},
+    {id:'l3', title:'אירועים ופונקציות', desc:'שימוש ב-Touched ועוד.'},
+    {id:'l4', title:'GUI בסיסי', desc:'בניית GUI בסיסי ואינטראקטיביות.'},
+    {id:'l5', title:'ModuleScripts', desc:'חלקים מתקדמים וארגון קוד.'}
   ];
-  const total = steps.reduce((a,s)=>a+s.t,0);
 
-  function advancedStep(){
-    if(idx >= steps.length) return finishLoading();
-    const s = steps[idx];
-    loaderStatus.innerText = s.text;
-    const start = performance.now();
-    function stepAnim(now){
-      const dt = now - start;
-      const frac = Math.min(1, dt/s.t);
-      const percent = Math.round(((elapsed + frac*s.t)/total)*100);
-      loaderBar.style.width = percent + '%';
-      loaderPercent.innerText = percent + '%';
-      if(frac < 1 && !interrupted) requestAnimationFrame(stepAnim);
-      else {
-        elapsed += s.t;
-        idx++;
-        if(interrupted){ finishLoading(); return; }
-        setTimeout(advancedStep, 140);
-      }
-    }
-    requestAnimationFrame(stepAnim);
-  }
+  let progress = JSON.parse(localStorage.getItem(PROG_KEY)||'{}');
 
-  function finishLoading(){
-    try {
-      loaderBar.style.width = '100%';
-      loaderPercent.innerText = '100%';
-      loaderStatus.innerText = 'סיום טעינה';
-      setTimeout(()=>{
-        loaderWrap.style.display = 'none';
-        appArea.style.display = 'block';
-        appArea.removeAttribute('aria-hidden');
-      }, 450);
-    } catch (e) {
-      loaderWrap.style.display = 'none';
-      appArea.style.display = 'block';
-      appArea.removeAttribute('aria-hidden');
-    }
-  }
+  // loading steps
+  const steps = [
+    {t:700, text:'אתחול מנוע...', files:12},
+    {t:1000, text:'טוען מודולים...', files:26},
+    {t:900, text:'מאמת חיבורים...', files:36},
+    {t:1200, text:'מסנכרן נכסים...', files:48},
+    {t:1100, text:'מפעיל ממשק משתמש...', files:60},
+    {t:900, text:'מוכן להפעלה', files:72}
+  ];
 
-  skipBtn.addEventListener('click', ()=>{
-    try {
-      interrupted = true;
-      finishLoading();
-    } catch (e) {
-      loaderWrap.style.display = 'none';
-      appArea.style.display = 'block';
-      appArea.removeAttribute('aria-hidden');
-    }
+  let total = steps.reduce((s,i)=>s+i.t,0);
+  let elapsed = 0; let idx = 0; let interrupted = false;
+
+  // ensure card clicks
+  document.getElementById('card').style.pointerEvents = 'auto';
+
+  // modal helpers
+  function showModal(title, html){ modalTitle.innerText = title; modalBody.innerHTML = html; modal.classList.add('show'); modal.setAttribute('aria-hidden','false'); }
+  function hideModal(){ modal.classList.remove('show'); modal.setAttribute('aria-hidden','true'); }
+  closeModalBtn.addEventListener('click', hideModal);
+
+  // start after DOM loaded
+  window.addEventListener('DOMContentLoaded', ()=>{
+    console.log('DOM ready — starting loader');
+    skipBtn.addEventListener('click', ()=>{ interrupted = true; finishLoading(); });
+    loaderInfo.addEventListener('click', ()=>{ showModal('מידע טכני', `<div style="color:var(--muted)">פינג: ~42ms<br>גרסה: Dev-Build 1.1 (דמו)<br>הכל רץ מקומית בדפדפן</div>`); });
+    interrupted = false; idx = 0; elapsed = 0; startLoading();
+    logoutBtn.addEventListener('click', ()=>{ localStorage.removeItem(CUR_USER_KEY); location.reload(); });
   });
 
-  // התחל טעינה מדורגת
-  advancedStep();
-});
+  function startLoading(){ loaderBar.style.width='0%'; loaderPercent.innerText='0%'; loaderStatus.innerText='מתחיל...'; loaderWrap.style.display='flex'; appArea.style.display='none'; setTimeout(()=>advancedStep(),120); }
+
+  function advancedStep(){ if(idx>=steps.length) return finishLoading(); const s=steps[idx]; loaderStatus.innerText=s.text; const start=performance.now(); function stepAnim(now){ const dt=now-start; const frac=Math.min(1, dt/s.t); const percent=Math.round(((elapsed + frac*s.t)/total)*100); loaderBar.style.width = percent + '%'; loaderPercent.innerText = percent + '%'; if(frac<1 && !interrupted) requestAnimationFrame(stepAnim); else { elapsed += s.t; idx++; if(interrupted){ finishLoading(); return } setTimeout(advancedStep,140); } } requestAnimationFrame(stepAnim); }
+
+  function finishLoading(){ loaderBar.style.width = '100%'; loaderPercent.innerText = '100%'; loaderStatus.innerText = 'סיום טעינה'; setTimeout(()=>decideAfterLoad(),450); }
+
+  function decideAfterLoad(){ const cur = localStorage.getItem(CUR_USER_KEY); loaderWrap.style.display='none'; if(cur){ openApp(cur); } else { showInitialAuth(); } }
+
+  // auth flows
+  function showInitialAuth(){ const html = `
+    <div style="display:flex; flex-direction:column; gap:12px">
+      <div style="font-size:14px; color:var(--muted)">כדי להמשיך יש להתחבר או ליצור חשבון (דמו נשמר בדפדפן).</div>
+      <div style="display:flex; gap:8px">
+        <button class="btn" id="createBtn">צור משתמש חדש</button>
+        <button class="btn secondary" id="loginBtn">התחבר לחשבון קיים</button>
+      </div>
+      <div style="margin-top:6px; color:var(--muted); font-size:13px">חשבון שנוצר כאן נשמר ב־localStorage במחשב זה בלבד.</div>
+    </div>
+  `; showModal('ברוך הבא ל-Roblox Dev', html); setTimeout(()=>{ document.getElementById('createBtn').addEventListener('click', openCreateFlow); document.getElementById('loginBtn').addEventListener('click', openLoginFlow); },50); }
+
+  function openCreateFlow(){ const html = `
+    <div style="display:flex; flex-direction:column; gap:8px">
+      <label>שם משתמש</label><input id="newUser" type="text" placeholder="שם ייחודי" />
+      <label>סיסמה</label><input id="newPass" type="password" placeholder="סיסמה" />
+      <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:6px">
+        <button class="btn" id="doCreate">צור</button>
+        <button class="btn secondary" id="backToAuth">חזור</button>
+      </div>
+      <div id="createMsg" style="color:var(--muted); font-size:13px"></div>
+    </div>
+  `; showModal('צור משתמש חדש', html); setTimeout(()=>{ document.getElementById('doCreate').addEventListener('click', ()=>{ const u=document.getElementById('newUser').value.trim(); const p=document.getElementById('newPass').value; if(!u||!p){ document.getElementById('createMsg').innerText='מלא שם וסיסמה'; return } const users=JSON.parse(localStorage.getItem(USERS_KEY)||'{}'); if(users[u]){ document.getElementById('createMsg').innerText='שם משתמש תפוס'; return } users[u] = { pass:btoa(p), created:Date.now() }; localStorage.setItem(USERS_KEY, JSON.stringify(users)); localStorage.setItem(CUR_USER_KEY, u); document.getElementById('createMsg').innerText='נוצר! מעביר לדשבורד...'; setTimeout(()=>{ hideModal(); openApp(u); },600); }); document.getElementById('backToAuth').addEventListener('click', showInitialAuth); },40); }
+
+  function openLoginFlow(){ const html = `
+    <div style="display:flex; flex-direction:column; gap:8px">
+      <label>שם משתמש</label><input id="loginUser" type="text" placeholder="הכנס שם" />
+      <label>סיסמה</label><input id="loginPass" type="password" placeholder="סיסמה" />
+      <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:6px">
+        <button class="btn" id="doLogin">התחבר</button>
+        <button class="btn secondary" id="backToAuth2">חזור</button>
+      </div>
+      <div id="loginMsg" style="color:var(--muted); font-size:13px"></div>
+    </div>
+  `; showModal('התחבר', html); setTimeout(()=>{ document.getElementById('doLogin').addEventListener('click', ()=>{ const u=document.getElementById('loginUser').value.trim(); const p=document.getElementById('loginPass').value; const users=JSON.parse(localStorage.getItem(USERS_KEY)||'{}'); if(!users[u]){ document.getElementById('loginMsg').innerText='חשבון לא קיים'; return } if(users[u].pass !== btoa(p)){ document.getElementById('loginMsg').innerText='סיסמה שגויה'; return } localStorage.setItem(CUR_USER_KEY, u); document.getElementById('loginMsg').innerText='התחברת! מעביר לדשבורד...'; setTimeout(()=>{ hideModal(); openApp(u); },500); }); document.getElementById('backToAuth2').addEventListener('click', showInitialAuth); },40); }
+
+  // open app
+  function openApp(username){ appArea.style.display='block'; appArea.removeAttribute('aria-hidden'); userBadge.innerText = 'שלום ' + username; logoutBtn.style.display = 'inline-block'; loaderWrap.style.display='none'; renderLessons(); updateOverall(); runScrollBindings(); }
+
+  // lessons UI
+  function renderLessons(){ lessonsList.innerHTML=''; LESSONS.forEach((l,idx)=>{ const done = progress[l.id] && progress[l.id].done; const el = document.createElement('div'); el.className = 'lesson'; el.innerHTML = `<div style="display:flex; gap:10px; align-items:center"><div class="num">${idx+1}</div><div style="flex:1"><div style="font-weight:700">${l.title}</div><div style="color:var(--muted); font-size:13px">${l.desc}</div></div></div>`; el.addEventListener('click', ()=> openLesson(l)); lessonsList.appendChild(el); });
+    // observe for reveal
+    observeReveals(); }
+
+  function updateOverall(){ const doneCount = LESSONS.filter(l=>progress[l.id] && progress[l.id].done).length; const pct = Math.round((doneCount/LESSONS.length)*100); overallBar.style.width = pct + '%'; }
+
+  let currentLesson = null;
+  function openLesson(l){ currentLesson = l.id; lessonTitle.innerText = l.title; lessonDesc.innerText = l.desc; lessonArea.style.display = 'block'; const saved = (progress[l.id] && progress[l.id].code) || `-- הדפס הודעה לקונסול\nprint('${l.title} — שלום!')\n`; codeArea.value = saved; updateLessonUI(); // reveal panel content
+    document.querySelectorAll('.panel .reveal').forEach(n=>n.classList.add('show'));
+  }
+
+  function updateLessonUI(){ const data = progress[currentLesson] || {}; const pct = data.done ? 100 : (data.percent || 0); lessonProgress.innerText = pct + '%'; }
+
+  // autosave code
+  let saveTimer = null;
+  codeArea.addEventListener('input', ()=>{ if(!currentLesson) return; if(saveTimer) clearTimeout(saveTimer); saveTimer = setTimeout(()=>{ progress[currentLesson] = progress[currentLesson] || {}; progress[currentLesson].code = codeArea.value; progress[currentLesson].percent = Math.min(99, (progress[currentLesson].percent||0)+5); progress[currentLesson].timestamp = Date.now(); localStorage.setItem(PROG_KEY, JSON.stringify(progress)); updateLessonUI(); updateOverall(); }, 700); });
+
+  // run/reset/mark done
+  runBtn.addEventListener('click', ()=>{ consoleEl.innerHTML = ''; appendConsole('--- הרצת סימולציה ---'); const lines = codeArea.value.split('\n'); lines.forEach(ln=>{ const t = ln.trim(); if(t.startsWith('print(')){ const inner = t.replace(/^print\(/,'').replace(/\)$/,''); appendConsole(evalPrint(inner)); } else if(t.includes('Instance.new')){ appendConsole('יצירת אובייקט: Instance.new() — (סימולציה)'); } }); appendConsole('--- סוף ---'); });
+  resetBtn.addEventListener('click', ()=>{ codeArea.value = "-- הדפס הודעה לקונסול\nprint('שלום Roblox Dev!')\n"; appendConsole('הקוד הוגדר לברירת מחדל'); });
+  markDoneBtn.addEventListener('click', ()=>{ if(!currentLesson) return alert('בחר שיעור קודם'); progress[currentLesson] = progress[currentLesson] || {}; progress[currentLesson].done = true; progress[currentLesson].percent = 100; localStorage.setItem(PROG_KEY, JSON.stringify(progress)); updateLessonUI(); renderLessons(); updateOverall(); appendConsole('השיעור סומן כהושלם — יופי!'); });
+
+  function evalPrint(s){ try{ return s.replace(/^['\"]|['\"]$/g,''); }catch(e){return s} }
+  function appendConsole(t){ const d=document.createElement('div'); d.innerText = t; consoleEl.appendChild(d); consoleEl.scrollTop = consoleEl.scrollHeight; }
+
+  /***************
+   * Reveal on scroll (IntersectionObserver)
+   ***************/
+  let observer = null;
+  function observeReveals(){
+    const items = document.querySelectorAll('.lesson');
+    if(observer) observer.disconnect();
+    observer = new IntersectionObserver((entries)=>{
+      entries.forEach(entry=>{
+        if(entry.isIntersecting){ entry.target.classList.add('revealed'); }
+      });
+    }, {root: document.getElementById('lessonsList'), threshold: 0.18});
+    items.forEach(it=>observer.observe(it));
+  }
+
+  /***************
+   * Scroll bindings for extra animations & progress
+   ***************/
+  function runScrollBindings(){
+    const card = document.getElementById('card');
+    card.addEventListener('scroll', onCardScroll);
+    window.addEventListener('scroll', onWindowScroll);
+    onWindowScroll();
+    document.querySelectorAll('.panel .reveal').forEach(n=>n.classList.remove('show'));
+  }
+
+  function onWindowScroll(){
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const scrolled = docHeight > 0 ? (window.scrollY / docHeight) : 0;
+    scrollFill.style.width = Math.round(scrolled * 100) + '%';
+    gradientAnim.style.transform = `translateY(${scrolled * 40}px) scale(1.18)`;
+    const brandEl = document.getElementById('brand');
+    if(window.scrollY > 18) brandEl.classList.add('shrink'); else brandEl.classList.remove('shrink');
+  }
+
+  function staggerReveal(){ const items = document.querySelectorAll('.lesson'); items.forEach((it,i)=>{ it.style.opacity = 0; it.style.transform = 'translateY(18px)'; setTimeout(()=>{ it.style.transitionDelay = (i*30)+'ms'; it.classList.add('revealed'); }, 140 + i*50); }); }
+
+  window.addEventListener('load', ()=>{ console.log('page loaded — ready'); });
+
 </script>
 </body>
 </html>
