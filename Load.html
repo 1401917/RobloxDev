@@ -241,7 +241,52 @@ print('שלום Roblox Dev!')
   </div>
 
 <script>
-// ...existing code...
+window.addEventListener('DOMContentLoaded', ()=>{
+  const loaderWrap = document.getElementById('loaderWrap');
+  const appArea = document.getElementById('appArea');
+  const skipBtn = document.getElementById('skipBtn');
+
+  let interrupted = false;
+
+  function finishLoading() {
+    // Simulate loading process
+    setTimeout(() => {
+      if (interrupted) return;
+      loaderWrap.style.display = 'none';
+      appArea.style.display = 'block';
+      appArea.removeAttribute('aria-hidden');
+    }, 2000);
+  }
+
+  skipBtn.addEventListener('click', ()=>{
+    try {
+      interrupted = true;
+      finishLoading();
+    } catch (e) {
+      // Fallback: force show app if JS/localStorage fails
+      loaderWrap.style.display = 'none';
+      appArea.style.display = 'block';
+      appArea.removeAttribute('aria-hidden');
+    }
+  });
+
+  function finishLoading(){
+    try {
+      loaderBar.style.width = '100%';
+      loaderPercent.innerText = '100%';
+      loaderStatus.innerText = 'סיום טעינה';
+      setTimeout(()=>decideAfterLoad(),450);
+    } catch (e) {
+      // Fallback: force show app if JS/localStorage fails
+      loaderWrap.style.display = 'none';
+      appArea.style.display = 'block';
+      appArea.removeAttribute('aria-hidden');
+    }
+  }
+
+  // Start the loading process
+  finishLoading();
+});
 </script>
 </body>
 </html>
