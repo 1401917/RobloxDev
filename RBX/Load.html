@@ -1,3 +1,4 @@
+```html
 <!doctype html>
 <html lang="he" dir="rtl">
 <head>
@@ -124,6 +125,152 @@
 
     /* responsive */
     @media (max-width:980px){ .main{flex-direction:column}.left{width:100%}.brand .logoBox{width:54px;height:54px} }
+
+    /* ===========================
+       ADDED STYLES (do not remove)
+       These styles were appended to add effects & responsive improvements
+       =========================== */
+
+    /* loader shine: uses .loading-bar::after; keep .loading-bar relative */
+    .loading-bar{position:relative}
+    .loading-bar::after {
+      content: '';
+      position: absolute;
+      top: 0; left: -50%;
+      width: 40%; height: 100%;
+      background: linear-gradient(120deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02), rgba(255,255,255,0.08));
+      transform: skewX(-20deg);
+      border-radius: 999px;
+      animation: loaderShine 1.8s linear infinite;
+      pointer-events: none;
+      mix-blend-mode: screen;
+    }
+    @keyframes loaderShine { 0%{ left:-50% } 100%{ left:150% } }
+
+    /* button hover glow */
+    .btn{transition: transform .15s ease, box-shadow .18s ease;}
+    .btn:hover {
+      transform: translateY(-3px) scale(1.03);
+      box-shadow: 0 14px 48px rgba(201,127,176,0.26), inset 0 0 12px rgba(201,127,176,0.04);
+    }
+    .btn.secondary:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 10px 34px rgba(201,127,176,0.14);
+      border-color: rgba(201,127,176,0.35);
+      color: var(--accent);
+    }
+
+    /* lesson hover */
+    .lesson:hover {
+      transform: translateY(-6px) scale(1.01);
+      box-shadow: 0 18px 60px rgba(201,127,176,0.20);
+    }
+
+    /* input/textarea hover */
+    input[type=text]:hover, input[type=password]:hover, textarea:hover {
+      box-shadow: inset 0 3px 14px rgba(0,0,0,0.6), 0 10px 36px rgba(201,127,176,0.12);
+    }
+
+    /* subtle parallax hint */
+    .gradient-anim { will-change: transform; transition: transform .12s linear; }
+
+    /* console syntax highlight (for appended HTML) */
+    .console .kw { color: var(--accent); font-weight:700; }
+    .console .str { color: #9bc2ff; }
+    .console .cmt { color: rgba(255,255,255,0.38); font-style: italic; }
+
+    /* ===========================
+       RESPONSIVE & DEVICE ADAPTATIONS
+       (appended styles)
+       =========================== */
+
+    /* Fluid typography and spacing */
+    :root{
+      --fs-base: clamp(14px, 1.6vw, 16px);
+      --fs-lg: clamp(18px, 2.2vw, 22px);
+      --touch-size: 52px;
+      --gap-sm: 8px;
+      --gap-md: 12px;
+      --card-padding-sm: 14px;
+      --card-padding-md: 22px;
+    }
+
+    /* base scaling */
+    html { font-size: var(--fs-base); }
+
+    /* scale important UI elements */
+    .logo { font-size: clamp(28px, 4.5vw, 44px); }
+    .title { font-size: var(--fs-lg); }
+    .btn { min-height: 40px; padding: 10px 14px; }
+    @media (pointer: coarse) {
+      .btn { min-height: var(--touch-size); padding: 14px 18px; font-size: 16px; }
+      textarea.code { min-height: 220px; }
+    }
+
+    /* make the card more fluid on small screens */
+    @media (max-width: 980px) {
+      .card{ margin:12px auto; padding:16px; max-width: 100%; }
+      .main{ flex-direction: column; gap: 12px; }
+      .left{ width:100% }
+      .panel{ width:100% }
+      .loading-bar{ width:100% }
+      .loading-meta{ width:100%; flex-direction:row; gap:8px; justify-content:space-between }
+    }
+
+    /* Very small phones */
+    @media (max-width: 420px) {
+      .logo{ font-size: 28px; }
+      .loading-headline span{ padding:4px 8px; }
+      .btn{ padding: 12px; }
+    }
+
+    /* Tablet layout */
+    @media (min-width: 981px) and (max-width: 1300px) {
+      .left{ width:34% }
+      .card{ max-width: 1000px; }
+    }
+
+    /* Large desktops & TVs — bigger hit targets and spacing */
+    @media (min-width: 1400px) {
+      .card{ max-width: 1500px; padding:34px; }
+      .btn{ padding:16px 20px; font-size:18px; min-height:56px; border-radius:14px; }
+      .lesson .num{ width:64px; height:64px; font-size:18px; }
+      .left{ width:30% }
+      .panel{ min-height:520px; }
+      .loading-bar{ width:520px; height:22px }
+    }
+
+    /* Safe-area insets (notch devices / TVs) */
+    html, body { padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
+
+    /* Focus and accessible hit-targets for TV/console navigation */
+    :focus { outline: 3px solid rgba(201,127,176,0.24); outline-offset: 2px; }
+    :focus-visible { box-shadow: 0 0 40px rgba(201,127,176,0.14); }
+
+    /* Coarse pointer optimizations */
+    @media (pointer: coarse) {
+      .lesson { padding: 16px; border-radius:14px; }
+      .lessons h3 { margin-left: 6px; }
+    }
+
+    /* reduce motion for users who request it */
+    @media (prefers-reduced-motion: reduce) {
+      * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; animation-iteration-count: 1 !important; }
+    }
+
+    /* Improve readability on TVs (increase contrast and size) */
+    @media (min-resolution: 2dppx) and (min-width: 1200px) {
+      .console, textarea.code { font-size: 15px; line-height: 1.5; }
+    }
+
+    /* Ensure loading-bar remains relative for shine */
+    .loading-bar { position: relative; }
+
+    /* Small helper: when lessons are keyboard-focused by gamepad/keyboard add strong visual */
+    .lesson.focused-lesson, .lesson:focus { transform: translateY(-6px) scale(1.01); box-shadow: 0 22px 60px rgba(201,127,176,0.22); }
+
+    /* end of added styles */
+
   </style>
 </head>
 <body>
@@ -311,16 +458,7 @@ print('שלום Roblox Dev!')
   // start after DOM loaded
   window.addEventListener('DOMContentLoaded', ()=>{
     console.log('DOM ready — starting loader');
-    skipBtn.addEventListener('click', ()=>{
-      try {
-        interrupted = true;
-        finishLoading();
-      } catch (e) {
-        loaderWrap.style.display = 'none';
-        appArea.style.display = 'block';
-        appArea.removeAttribute('aria-hidden');
-      }
-    });
+    skipBtn.addEventListener('click', ()=>{ interrupted = true; finishLoading(); });
     loaderInfo.addEventListener('click', ()=>{ showModal('מידע טכני', `<div style="color:var(--muted)">פינג: ~42ms<br>גרסה: Dev-Build 1.1 (דמו)<br>הכל רץ מקומית בדפדפן</div>`); });
     interrupted = false; idx = 0; elapsed = 0; startLoading();
     logoutBtn.addEventListener('click', ()=>{ localStorage.removeItem(CUR_USER_KEY); location.reload(); });
@@ -330,18 +468,7 @@ print('שלום Roblox Dev!')
 
   function advancedStep(){ if(idx>=steps.length) return finishLoading(); const s=steps[idx]; loaderStatus.innerText=s.text; const start=performance.now(); function stepAnim(now){ const dt=now-start; const frac=Math.min(1, dt/s.t); const percent=Math.round(((elapsed + frac*s.t)/total)*100); loaderBar.style.width = percent + '%'; loaderPercent.innerText = percent + '%'; if(frac<1 && !interrupted) requestAnimationFrame(stepAnim); else { elapsed += s.t; idx++; if(interrupted){ finishLoading(); return } setTimeout(advancedStep,140); } } requestAnimationFrame(stepAnim); }
 
-  function finishLoading(){
-    try {
-      loaderBar.style.width = '100%';
-      loaderPercent.innerText = '100%';
-      loaderStatus.innerText = 'סיום טעינה';
-      setTimeout(()=>decideAfterLoad(),450);
-    } catch (e) {
-      loaderWrap.style.display = 'none';
-      appArea.style.display = 'block';
-      appArea.removeAttribute('aria-hidden');
-    }
-  }
+  function finishLoading(){ loaderBar.style.width = '100%'; loaderPercent.innerText = '100%'; loaderStatus.innerText = 'סיום טעינה'; setTimeout(()=>decideAfterLoad(),450); }
 
   function decideAfterLoad(){ const cur = localStorage.getItem(CUR_USER_KEY); loaderWrap.style.display='none'; if(cur){ openApp(cur); } else { showInitialAuth(); } }
 
@@ -449,6 +576,224 @@ print('שלום Roblox Dev!')
 
   window.addEventListener('load', ()=>{ console.log('page loaded — ready'); });
 
+  /* ===========================
+     ADDED JS (do not remove)
+     - typing queue for console
+     - syntax highlighting for console output
+     - parallax subtle for gradientAnim
+     - responsive/gamepad/TV navigation helpers
+     =========================== */
+
+  // queue + typing for console output (overrides existing appendConsole behavior safely)
+  (function(){
+    const queue = [];
+    let busy = false;
+
+    // simple syntax highlight for console strings
+    function syntaxHighlightHTML(text){
+      // escape
+      const esc = (s)=> s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      let out = esc(text);
+      // comments (-- ...)
+      out = out.replace(/(--.*)/g, '<span class="cmt">$1</span>');
+      // strings
+      out = out.replace(/(['"])(.*?)\1/g, '<span class="str">$1$2$1</span>');
+      // keywords
+      out = out.replace(/\b(print|function|end|if|then|else|for|in|while|local|return)\b/g, '<span class="kw">$1</span>');
+      return out;
+    }
+
+    // type one message (per-char)
+    function typeMessage(msg, perChar=14){
+      return new Promise((resolve)=>{
+        const wrapper = document.createElement('div');
+        consoleEl.appendChild(wrapper);
+        consoleEl.scrollTop = consoleEl.scrollHeight;
+        let i = 0;
+        const plain = msg;
+        const interval = setInterval(()=>{
+          i++;
+          wrapper.textContent = plain.slice(0,i);
+          consoleEl.scrollTop = consoleEl.scrollHeight;
+          if(i >= plain.length){
+            clearInterval(interval);
+            // replace with highlighted HTML
+            wrapper.innerHTML = syntaxHighlightHTML(plain);
+            consoleEl.scrollTop = consoleEl.scrollHeight;
+            resolve();
+          }
+        }, perChar);
+      });
+    }
+
+    async function processQueue(){
+      if(busy) return;
+      busy = true;
+      while(queue.length){
+        const item = queue.shift();
+        await typeMessage(item, 14);
+        await new Promise(r=>setTimeout(r, 120));
+      }
+      busy = false;
+    }
+
+    // override appendConsole globally (keeps calls intact)
+    window.appendConsole = function(t){
+      const s = (typeof t === 'string' || t instanceof String) ? String(t) : JSON.stringify(t);
+      queue.push(s);
+      processQueue();
+    };
+  })();
+
+  // subtle parallax for gradientAnim based on mouse (keeps original float animation of .shape untouched)
+  (function(){
+    let lastX = 0, lastY = 0;
+    document.addEventListener('mousemove', (e)=>{
+      const x = (e.clientX / window.innerWidth - 0.5) * 18;
+      const y = (e.clientY / window.innerHeight - 0.5) * 12;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const scrolled = docHeight > 0 ? (window.scrollY / docHeight) : 0;
+      gradientAnim.style.transform = `translate(${x}px, ${scrolled * 40 + y}px) scale(1.18)`;
+      lastX = x; lastY = y;
+    });
+    window.addEventListener('scroll', ()=>{
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const scrolled = docHeight > 0 ? (window.scrollY / docHeight) : 0;
+      gradientAnim.style.transform = `translate(${lastX}px, ${scrolled * 40 + lastY}px) scale(1.18)`;
+    });
+  })();
+
+  // keyboard/gamepad/tv navigation enhancements for lessons and general touch tweaks
+  (function enhanceLessonsNavigation(){
+    const lessonsWrap = document.getElementById('lessonsList');
+    if(!lessonsWrap) return;
+
+    function enhanceItem(el){
+      if(!el.hasAttribute('tabindex')){
+        el.setAttribute('tabindex','0');
+        el.addEventListener('keydown', (ev)=>{
+          if(ev.key === 'Enter' || ev.key === ' '){
+            ev.preventDefault();
+            el.click();
+          }
+          if(ev.key === 'ArrowDown'){ ev.preventDefault(); const next = el.nextElementSibling; if(next) next.focus(); }
+          if(ev.key === 'ArrowUp'){ ev.preventDefault(); const prev = el.previousElementSibling; if(prev) prev.focus(); }
+        });
+        el.addEventListener('focus', ()=> el.scrollIntoView({behavior:'smooth', block:'center'}));
+      }
+    }
+
+    const mo = new MutationObserver((mutations)=>{
+      mutations.forEach(m=>{
+        m.addedNodes.forEach(n=>{
+          if(n.nodeType===1 && n.classList.contains('lesson')) enhanceItem(n);
+        });
+      });
+    });
+    mo.observe(lessonsWrap, { childList: true, subtree: false });
+
+    document.querySelectorAll('#lessonsList .lesson').forEach(enhanceItem);
+  })();
+
+  (function enableGamepadNav(){
+    let lastT = 0;
+    const DEADZONE = 0.4;
+    const poll = ()=>{
+      const gps = navigator.getGamepads ? navigator.getGamepads() : [];
+      if(!gps) return;
+      for(let i=0;i<gps.length;i++){
+        const gp = gps[i];
+        if(!gp) continue;
+        if(gp.buttons && gp.buttons[0] && gp.buttons[0].pressed){
+          const active = document.activeElement;
+          if(active) active.click();
+        }
+        let vy = gp.axes && gp.axes.length>1 ? gp.axes[1] : 0;
+        if(gp.buttons && gp.buttons[13] && gp.buttons[13].pressed) vy = 1;
+        if(gp.buttons && gp.buttons[12] && gp.buttons[12].pressed) vy = -1;
+        if(Math.abs(vy) > DEADZONE){
+          const now = performance.now();
+          if(now - lastT > 180){
+            lastT = now;
+            const items = Array.from(document.querySelectorAll('#lessonsList .lesson'));
+            if(items.length === 0) return;
+            const active = document.activeElement;
+            let idx = items.indexOf(active);
+            if(idx === -1) {
+              const target = vy > 0 ? items[0] : items[items.length-1];
+              if(target) target.focus();
+            } else {
+              let nextIdx = vy > 0 ? Math.min(items.length-1, idx+1) : Math.max(0, idx-1);
+              items[nextIdx].focus();
+            }
+          }
+        }
+      }
+    };
+
+    let gamepadLoop = null;
+    function startLoop(){
+      if(gamepadLoop) return;
+      gamepadLoop = setInterval(poll, 120);
+    }
+    function stopLoop(){
+      if(gamepadLoop){ clearInterval(gamepadLoop); gamepadLoop = null; }
+    }
+
+    window.addEventListener('gamepadconnected', startLoop);
+    window.addEventListener('gamepaddisconnected', ()=>{});
+    if(navigator.getGamepads && navigator.getGamepads().some(g=>g)) startLoop();
+    document.addEventListener('visibilitychange', ()=> {
+      if(document.hidden) stopLoop(); else startLoop();
+    });
+  })();
+
+  (function touchTweaks(){
+    document.addEventListener('touchstart', ()=>{}, {passive:true});
+    document.addEventListener('gesturestart', (e)=>{ try{ e.preventDefault(); }catch(e){} });
+  })();
+
+  (function responsiveHelpers(){
+    function onResize(){
+      if(window.innerWidth < 480){
+        const ll = document.getElementById('lessonsList');
+        if(ll) ll.scrollTop = 0;
+      }
+    }
+    window.addEventListener('resize', onResize);
+    window.addEventListener('orientationchange', ()=> setTimeout(onResize, 260));
+  })();
+
+  (function addEffectsToggle(){
+    try{
+      const card = document.getElementById('card');
+      if(!card) return;
+      const btn = document.createElement('button');
+      btn.className = 'btn secondary';
+      btn.style.position = 'absolute';
+      btn.style.top = '12px';
+      btn.style.left = '12px';
+      btn.style.zIndex = 80;
+      btn.textContent = 'Effects: ON';
+      let enabled = true;
+      btn.addEventListener('click', ()=>{
+        enabled = !enabled;
+        btn.textContent = enabled ? 'Effects: ON' : 'Effects: OFF';
+        document.body.classList.toggle('effects-off', !enabled);
+        if(!enabled){
+          window.__appendConsole_backup = window.appendConsole;
+          window.appendConsole = function(t){ const d=document.createElement('div'); d.innerText = t; consoleEl.appendChild(d); consoleEl.scrollTop = consoleEl.scrollHeight; };
+        } else {
+          if(window.__appendConsole_backup) window.appendConsole = window.__appendConsole_backup;
+        }
+      });
+      card.appendChild(btn);
+    }catch(e){}
+  })();
+
+  /* End of additional JS */
+
 </script>
 </body>
 </html>
+```
